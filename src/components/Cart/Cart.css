@@ -1,0 +1,33 @@
+.cart {
+    padding: 3px;
+    margin-left: 40px;
+}
+.cart-header {
+    text-align: center;
+    font-weight: bold;
+}
+.cart-items {
+    font-weight: 600;
+    margin-left: 8px;
+}
+.cart-body {
+    margin-left: 8px;
+    padding: 1px;
+}
+.total-price {
+    font-size: 18px;
+    font-weight: bold;
+    color: rgb(172, 23, 23);
+}
+
+.review-btn {
+    background-color: goldenrod;
+    width: 150px;
+    height: 30px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: #222;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+}
