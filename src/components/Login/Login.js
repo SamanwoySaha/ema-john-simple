@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import './Login.css';
 import { UserContext } from '../../App';
 import { useHistory, useLocation } from 'react-router-dom';
-import { initializeLoginFramework } from './loginManager';
+import { initializeLoginFramework, handleGoogleSignIn, handleSignOut, handleFbLogin, createUserWithEmailAndPassword, signInWithEmailAndPassword } from './loginManager';
 
 function Login() {
   const [newUser, setNewUser] = useState(false);
@@ -23,6 +23,35 @@ function Login() {
   const location = useLocation();
   let { from } = location.state || { from: { pathname: "/" } };
 
+  const googleSignIn = () => {
+    handleGoogleSignIn()
+      .then(res => {
+        handleResponse(res, true);
+      })
+  }
+
+  const fbLogin = () => {
+    handleFbLogin()
+      .then(res => {
+        handleResponse(res, true);
+      })
+  }
+
+  const signOut = () => {
+    handleSignOut()
+      .then(res => {
+        handleResponse(res, false);
+      })
+  }
+
+  const handleResponse = (res, redirect) => {
+    setUser(res);
+    setLoggedInUser(res);
+    if(redirect) {
+      history.replace(from);
+    }
+  }
+
   const handleBlur = (e) => {
     let isFormValid = true;
     if (e.target.name === 'email') {
@@ -42,24 +71,30 @@ function Login() {
 
   const handleSubmit = (e) => {
     if (newUser && user.email && user.password) {
-      
+      createUserWithEmailAndPassword(user.name, user.email, user.password)
+        .then(res => {
+          handleResponse(res, true);
+        })
     }
 
     if (!newUser && user.email && user.password) {
-      
+      signInWithEmailAndPassword(user.email, user.password)
+        .then(res => {
+          handleResponse(res, true);
+        })
     }
     e.preventDefault();
-  }  
+  }
 
   return (
-    <div style={{textAlign: 'center'}}>
+    <div style={{ textAlign: 'center' }}>
       <header className="App-header">
         {
-          user.isSignedIn ? <button onClick={handleSignOut}>Sign out</button>
-            : <button onClick={handleGoogleSignIn}>Sign in with Google</button>
+          user.isSignedIn ? <button onClick={signOut}>Sign out</button>
+            : <button onClick={googleSignIn}>Sign in with Google</button>
         }
         <br />
-        <button onClick={handleFbLogin}>Sign in with Facebook</button>
+        <button onClick={fbLogin}>Sign in with Facebook</button>
         {
           user.isSignedIn &&
           <div>
