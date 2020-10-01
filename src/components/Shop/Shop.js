@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import fakeData from '../../fakeData';
 import './Shop.css';
 import Product from '../Product/Product';
 import Cart from '../Cart/Cart';
@@ -7,28 +6,34 @@ import { addToDatabaseCart, getDatabaseCart } from '../../utilities/databaseMana
 import { Link } from "react-router-dom";
 
 const Shop = () => {
-    const first10 = fakeData.slice(0, 10);
-    const [products, setProducts] = useState(first10);
+    const [products, setProducts] = useState([]);
     const [cart, setCart] = useState([]);
+
+    useEffect(() => {
+        fetch('http://localhost:4200/products')
+            .then(res => res.json())
+            .then(data => setProducts(data));
+    }, [])
 
     useEffect(() => {
         const savedCart = getDatabaseCart();
         const productKeys = Object.keys(savedCart);
-        // const counts = Object.values(savedCart);
-        const cartProducts = productKeys.map(key => {
-            const product = fakeData.find(pd => pd.key === key);
-            product.quantity = savedCart[key];
-            return product;
+
+        fetch('http://localhost:4200/productsByKeys', {
+            method: 'POST',
+            body: JSON.stringify(productKeys),
+            headers: { 'Content-Type': 'application/json' }
         })
-        setCart(cartProducts);
+            .then(res => res.json())
+            .then(data => setCart(data));
     }, [])
-    
+
     const handleAddProduct = (product) => {
         const sameProduct = cart.find(pd => pd.key === product.key);
         let count = 1;
         let newCart;
 
-        if(sameProduct){
+        if (sameProduct) {
             count = sameProduct.quantity + 1;
             sameProduct.quantity = count;
             const others = cart.filter(pd => pd.key !== product.key);
@@ -46,13 +51,13 @@ const Shop = () => {
         <div className="twin-container">
             <div className="product-container">
                 {
-                    products.map(product => <Product 
-                        showAddToCart = {true}
-                        handleAddProduct = {handleAddProduct}
-                        product = {product} 
-                        key = {product.key}
-                        >                            
-                        </Product>)
+                    products.map(product => <Product
+                        showAddToCart={true}
+                        handleAddProduct={handleAddProduct}
+                        product={product}
+                        key={product.key}
+                    >
+                    </Product>)
                 }
             </div>
             <div className="cart-container">
@@ -61,7 +66,7 @@ const Shop = () => {
                         <button className="review-btn">Review Your Cart</button>
                     </Link>
                 </Cart>
-            </div>            
+            </div>
         </div>
     );
 };
